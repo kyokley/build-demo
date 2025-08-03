@@ -12,5 +12,4 @@ dependencies = [
 [dependency-groups]
 dev = [
     "bpython>=0.25",
-    "pdbpp>=0.11.7",
 ]

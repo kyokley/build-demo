@@ -5,7 +5,7 @@
   env.GREET = "build-demo";
 
   # https://devenv.sh/packages/
-  packages = [];
+  packages = [pkgs.fortune];
 
   # https://devenv.sh/languages/
   languages.python = {
@@ -44,7 +44,11 @@
   git-hooks.hooks = {
     ruff.enable = true;
     ruff-format.enable = true;
-    mypy.enable = true;
+    mypy.enable = false;
+    isort = {
+      enable = true;
+      settings.profile = "black";
+    };
   };
 
   # See full reference at https://devenv.sh/reference/options/
