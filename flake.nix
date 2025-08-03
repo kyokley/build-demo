@@ -22,7 +22,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        python = pkgs.python3Minimal; # Your desired Python version
+        python = pkgs.python3; # Your desired Python version
 
         # 1. Load Project Workspace (parses pyproject.toml, uv.lock)
         workspace = uv2nix.lib.workspace.loadWorkspace {
