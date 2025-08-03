@@ -17,15 +17,22 @@ def main():
 @app.get("/cat")
 def cat():
     fortune = get_fortune()
-    print(fortune)
     url = f"https://cataas.com/cat/cute/says/{fortune}"
-    resp = httpx.get(url, params={"html": "true", "fontSize": "22"})
+    resp = httpx.get(
+        url,
+        params={
+            "html": "true",
+            "fontSize": "22",
+        },
+    )
+    print(resp)
     return Response(content=resp.content)
 
 
 def get_fortune():
     fortune = run(["fortune", "-s"], stdout=PIPE, check=True).stdout.decode().strip()
     fortune = wrap(fortune)
+    print(fortune)
     return quote("\n".join(fortune))
 
 
