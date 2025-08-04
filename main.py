@@ -30,7 +30,9 @@ def cat():
 
 
 def get_fortune():
-    fortune = run(["fortune", "-s"], stdout=PIPE, check=True).stdout.decode().strip()
+    fortune = (
+        run(["/app/bin/fortune", "-s"], stdout=PIPE, check=True).stdout.decode().strip()
+    )
     fortune = wrap(fortune)
     print(fortune)
     return quote("\n".join(fortune))

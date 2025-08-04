@@ -81,6 +81,7 @@
             chmod +x $out/bin/${thisProjectAsNixPkg.pname}-script
             makeWrapper ${appPythonEnv}/bin/python $out/bin/${thisProjectAsNixPkg.pname} \
               --add-flags $out/bin/${thisProjectAsNixPkg.pname}-script
+            cp ${pkgs.fortune}/bin/fortune $out/bin/fortune
           '';
         };
         packages.${thisProjectAsNixPkg.pname} = self.packages.${system}.default;
