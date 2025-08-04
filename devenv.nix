@@ -31,7 +31,7 @@
     '';
     docker-run.exec = ''
       set -x
-      docker run --rm -it -p 127.0.0.1:8000:8000 kyokley/build-demo uv run python main.py
+      docker run --rm -it --net=host kyokley/build-demo uv run python main.py
     '';
     docker-build-nix.exec = ''
       set -x
@@ -39,7 +39,7 @@
     '';
     docker-run-nix.exec = ''
       set -x
-      docker run --rm -it -p 127.0.0.1:8000:8000 kyokley/build-demo-nix
+      docker run --rm -it --net=host kyokley/build-demo-nix
     '';
   };
 
