@@ -21,9 +21,19 @@
   # services.postgres.enable = true;
 
   # https://devenv.sh/scripts/
-  scripts.hello.exec = ''
-    echo Welcome to $GREET
-  '';
+  scripts = {
+    hello.exec = ''
+      echo Welcome to $GREET
+    '';
+    docker-build.exec = ''
+      set -x
+      docker build -t kyokley/build-demo .
+    '';
+    docker-run.exec = ''
+      set -x
+      docker run --rm -it -p 127.0.0.1:8000:8000 kyokley/build-demo uv run python main.py
+    '';
+  };
 
   enterShell = ''
     hello
