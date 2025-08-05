@@ -92,6 +92,22 @@
           program = "${self.packages.${system}.default}/bin/${thisProjectAsNixPkg.pname}";
         };
         apps.${thisProjectAsNixPkg.pname} = self.apps.${system}.default;
+
+        packages.docker-image = pkgs.dockerTools.buildImage {
+          name = "kyokley/build-demo-nix2";
+          tag = "latest";
+          copyToRoot = pkgs.buildEnv {
+            name = "image-root";
+            paths = [ self.packages.${system}.default ];
+            pathsToLink = ["/bin"];
+          };
+          config = {
+            Entrypoint = ["/bin/build-demo"];
+            Env = [
+              "FORTUNE_EXEC=/bin/fortune"
+            ];
+          };
+        };
       }
     );
 }

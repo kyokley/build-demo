@@ -10,6 +10,7 @@ ENV UV_CACHE_DIR=/uv_cache
 ENV UV_PROJECT_DIR=${UV_PROJECT_ENVIRONMENT}
 ENV VIRTUAL_ENV=${UV_PROJECT_ENVIRONMENT}
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV FORTUNE_EXEC=/usr/games/fortune
 
 FROM base AS builder
 
@@ -24,8 +25,6 @@ FROM base AS prod
 
 RUN apt-get update && \
         apt-get install -y --no-install-recommends fortune fortunes && \
-        mkdir -p /app/bin && \
-        ln -s /usr/games/fortune /app/bin/fortune && \
         pip install --upgrade --no-cache-dir pip uv
 
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}

@@ -41,6 +41,15 @@
       set -x
       docker run --rm -it --net=host kyokley/build-demo-nix
     '';
+    docker-build-nix2.exec = ''
+      set -x
+      nix build '.#docker-image'
+      docker load < result
+    '';
+    docker-run-nix2.exec = ''
+      set -x
+      docker run --rm -it --net=host kyokley/build-demo-nix2
+    '';
   };
 
   enterShell = ''

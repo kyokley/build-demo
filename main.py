@@ -1,3 +1,4 @@
+import os
 from subprocess import PIPE, run
 from textwrap import wrap
 from urllib.parse import quote
@@ -6,6 +7,7 @@ import httpx
 import uvicorn
 from fastapi import FastAPI, Response
 
+FORTUNE_EXEC = os.environ.get("FORTUNE_EXEC") or "/app/bin/fortune"
 app = FastAPI()
 
 
@@ -31,7 +33,7 @@ def cat():
 
 def get_fortune():
     fortune = (
-        run(["/app/bin/fortune", "-s"], stdout=PIPE, check=True).stdout.decode().strip()
+        run([f"{FORTUNE_EXEC}", "-s"], stdout=PIPE, check=True).stdout.decode().strip()
     )
     fortune = wrap(fortune)
     print(fortune)
