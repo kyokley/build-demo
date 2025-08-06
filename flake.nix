@@ -58,11 +58,15 @@
           (thisProjectAsNixPkg.pname + "-env")
           workspace.deps.default; # Uses deps from pyproject.toml [project.dependencies]
 
+        devPythonEnv = pythonSet.mkVirtualEnv
+          (thisProjectAsNixPkg.pname + "-env")
+          workspace.deps.dev; # Uses deps from pyproject.toml [project.dependencies]
+
       in
       {
         # Development Shell
         devShells.default = pkgs.mkShell {
-          packages = [ appPythonEnv pkgs.uv ];
+          packages = [ devPythonEnv pkgs.uv ];
           shellHook = '' # Your custom shell hooks */ '';
         };
 
@@ -81,6 +85,7 @@
             chmod +x $out/bin/${thisProjectAsNixPkg.pname}-script
             makeWrapper ${appPythonEnv}/bin/python $out/bin/${thisProjectAsNixPkg.pname} \
               --add-flags $out/bin/${thisProjectAsNixPkg.pname}-script
+
             cp ${pkgs.fortune}/bin/fortune $out/bin/fortune
           '';
         };
@@ -102,7 +107,7 @@
             pathsToLink = ["/bin"];
           };
           config = {
-            Entrypoint = ["/bin/build-demo"];
+            Entrypoint = ["/bin/${thisProjectAsNixPkg.pname}"];
             Env = [
               "FORTUNE_EXEC=/bin/fortune"
             ];

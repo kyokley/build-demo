@@ -15,7 +15,9 @@
   };
 
   # https://devenv.sh/processes/
-  # processes.cargo-watch.exec = "cargo-watch";
+  processes = {
+    serve.exec = "uvx mkslides serve docs/";
+  };
 
   # https://devenv.sh/services/
   # services.postgres.enable = true;

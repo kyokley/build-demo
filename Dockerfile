@@ -1,6 +1,5 @@
-ARG BASE_IMAGE=python:3.13-slim
+FROM python:3.13-slim AS base
 
-FROM ${BASE_IMAGE} AS base
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=.
@@ -19,7 +18,7 @@ RUN pip install --upgrade --no-cache-dir pip uv && \
 
 COPY uv.lock pyproject.toml ${UV_PROJECT_DIR}/
 
-RUN uv sync --project ${VIRTUAL_ENV}
+RUN uv sync --no-dev --project ${VIRTUAL_ENV}
 
 FROM base AS prod
 

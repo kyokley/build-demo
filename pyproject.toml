@@ -13,4 +13,5 @@ dependencies = [
 [dependency-groups]
 dev = [
     "bpython>=0.25",
+    "mkslides>=1.0.10",
 ]
