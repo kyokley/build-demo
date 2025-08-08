@@ -20,7 +20,7 @@ COPY uv.lock pyproject.toml ${UV_PROJECT_DIR}/
 
 RUN uv sync --no-dev --project ${VIRTUAL_ENV}
 
-FROM base AS prod
+FROM base AS final
 
 RUN apt-get update && \
         apt-get install -y --no-install-recommends fortune fortunes && \
@@ -30,3 +30,5 @@ COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 COPY . ${UV_PROJECT_DIR}
 
 WORKDIR ${UV_PROJECT_DIR}
+
+CMD ["uv", "run", "--no-dev", "python", "main.py"]

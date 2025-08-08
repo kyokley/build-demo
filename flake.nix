@@ -1,5 +1,5 @@
 {
-  description = "App to display various build/deploy options";
+  description = "App to display cats telling fortunes";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -81,12 +81,11 @@
 
           installPhase = ''
             mkdir -p $out/bin
-            cp main.py $out/bin/${thisProjectAsNixPkg.pname}-script
-            chmod +x $out/bin/${thisProjectAsNixPkg.pname}-script
-            makeWrapper ${appPythonEnv}/bin/python $out/bin/${thisProjectAsNixPkg.pname} \
-              --add-flags $out/bin/${thisProjectAsNixPkg.pname}-script
-
+            cp main.py $out/bin/main.py
             cp ${pkgs.fortune}/bin/fortune $out/bin/fortune
+            makeWrapper ${appPythonEnv}/bin/python $out/bin/${thisProjectAsNixPkg.pname} \
+              --add-flags $out/bin/main.py \
+              --set FORTUNE_EXEC $out/bin/fortune
           '';
         };
         packages.${thisProjectAsNixPkg.pname} = self.packages.${system}.default;

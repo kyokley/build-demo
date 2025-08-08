@@ -4,12 +4,16 @@ slides:
     separator_vertical: ^\s*-v-\s*$
 ---
 
-# Nix Build
+# :building_construction: Deterministic Builds :ship:
 
 ---
 
-## Docker <!-- .element: class="fragment" -->
+## :whale: Docker :whale:
 Is Docker a good platform for creating reproducible builds? <!-- .element: class="fragment" -->
+
+Notes:
+
+Show of hands, who thinks Docker is a good platform for creating reproducible builds?
 
 ---
 
@@ -18,16 +22,13 @@ According to [Docker](https://www.docker.com/why-docker/)
 
 ---
 
-According to ChatGPT
+:robot: According to ChatGPT :robot:
 > Docker provides a solid foundation for reproducible builds, especially compared to traditional “run this bash script on a VM” setups. However, true reproducibility requires discipline—Docker makes it possible, but you have to make it happen.
 
 ---
 
-Can we do better?
-
----
-
-Enter Fortune Cat :cat:
+#### :cat: Enter Fortune Cat :cat:
+main.py
 ```python
 import os
 from subprocess import PIPE, run
@@ -40,11 +41,6 @@ from fastapi import FastAPI, Response
 
 FORTUNE_EXEC = os.environ.get("FORTUNE_EXEC") or "/app/bin/fortune"
 app = FastAPI()
-
-
-@app.get("/")
-def main():
-    return "Hello from build-demo!"
 
 
 @app.get("/cat")
@@ -74,6 +70,10 @@ def get_fortune():
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, workers=1)
 ```
+
+Notes:
+
+Fortune Cat is a python3.13 fastapi app that calls Cat-aaS and passes a message from the fortune CLI app
 
 ---
 
@@ -105,7 +105,7 @@ COPY uv.lock pyproject.toml ${UV_PROJECT_DIR}/
 
 RUN uv sync --no-dev --project ${VIRTUAL_ENV}
 
-FROM base AS prod
+FROM base AS final
 
 RUN apt-get update && \
         apt-get install -y --no-install-recommends fortune fortunes && \
@@ -115,10 +115,16 @@ COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 COPY . ${UV_PROJECT_DIR}
 
 WORKDIR ${UV_PROJECT_DIR}
+
+CMD ["uv", "run", "python", "main.py"]
 ```
+Notes:
+
+What parts of this risk reproducibility?
+
 -v-
 
-Potential Issues :thinking:
+:thinking: Potential Issues :thinking:
 ```dockerfile [1|25-27]
 FROM python:3.13-slim AS base
 
@@ -142,7 +148,7 @@ COPY uv.lock pyproject.toml ${UV_PROJECT_DIR}/
 
 RUN uv sync --no-dev --project ${VIRTUAL_ENV}
 
-FROM base AS prod
+FROM base AS final
 
 RUN apt-get update && \
         apt-get install -y --no-install-recommends fortune fortunes && \
@@ -154,16 +160,27 @@ COPY . ${UV_PROJECT_DIR}
 WORKDIR ${UV_PROJECT_DIR}
 ```
 
+Notes:
+* The image defined in the first line isn't pinned
+
+* Commands like "apt update", "apk update", etc. could change package versions across builds
+
+* "apt upgrade" is especially insidious because it means old versions of OS libraries could be leftover in your images
+
 ---
 
-What about Nix?
-Enter flakes <!-- .element: class="fragment" -->
+#### Can we do better?
+
+---
+
+#### What about Nix?
+##### :snowflake: Enter flakes :snowflake: <!-- .element: class="fragment" -->
 
 ---
 flake.nix
 ```nix
 {
-  description = "App to display various build/deploy options";
+  description = "App to display cats telling fortunes";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -245,12 +262,11 @@ flake.nix
 
           installPhase = ''
             mkdir -p $out/bin
-            cp main.py $out/bin/${thisProjectAsNixPkg.pname}-script
-            chmod +x $out/bin/${thisProjectAsNixPkg.pname}-script
-            makeWrapper ${appPythonEnv}/bin/python $out/bin/${thisProjectAsNixPkg.pname} \
-              --add-flags $out/bin/${thisProjectAsNixPkg.pname}-script
-
+            cp main.py $out/bin/main.py
             cp ${pkgs.fortune}/bin/fortune $out/bin/fortune
+            makeWrapper ${appPythonEnv}/bin/python $out/bin/${thisProjectAsNixPkg.pname} \
+              --add-flags $out/bin/main.py \
+              --set FORTUNE_EXEC $out/bin/fortune
           '';
         };
         packages.${thisProjectAsNixPkg.pname} = self.packages.${system}.default;
@@ -261,33 +277,26 @@ flake.nix
           program = "${self.packages.${system}.default}/bin/${thisProjectAsNixPkg.pname}";
         };
         apps.${thisProjectAsNixPkg.pname} = self.apps.${system}.default;
-
-        packages.docker-image = pkgs.dockerTools.buildImage {
-          name = "kyokley/build-demo-nix2";
-          tag = "latest";
-          copyToRoot = pkgs.buildEnv {
-            name = "image-root";
-            paths = [ self.packages.${system}.default ];
-            pathsToLink = ["/bin"];
-          };
-          config = {
-            Entrypoint = ["/bin/${thisProjectAsNixPkg.pname}"];
-            Env = [
-              "FORTUNE_EXEC=/bin/fortune"
-            ];
-          };
-        };
       }
     );
 }
 ```
+
+Notes:
+
+Totally straightforward, right?
+
+-v-
+
+# BUT WHY!?
+<img src="https://the6track.com/wp-content/uploads/2017/10/Really-Confused-Black-guy-memes.jpg" class="r-stretch" />
 
 -v-
 
 flake.nix
 ```nix [52|82-90]
 {
-  description = "App to display various build/deploy options";
+  description = "App to display cats telling fortunes";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -369,12 +378,11 @@ flake.nix
 
           installPhase = ''
             mkdir -p $out/bin
-            cp main.py $out/bin/${thisProjectAsNixPkg.pname}-script
-            chmod +x $out/bin/${thisProjectAsNixPkg.pname}-script
-            makeWrapper ${appPythonEnv}/bin/python $out/bin/${thisProjectAsNixPkg.pname} \
-              --add-flags $out/bin/${thisProjectAsNixPkg.pname}-script
-
+            cp main.py $out/bin/main.py
             cp ${pkgs.fortune}/bin/fortune $out/bin/fortune
+            makeWrapper ${appPythonEnv}/bin/python $out/bin/${thisProjectAsNixPkg.pname} \
+              --add-flags $out/bin/main.py \
+              --set FORTUNE_EXEC $out/bin/fortune
           '';
         };
         packages.${thisProjectAsNixPkg.pname} = self.packages.${system}.default;
@@ -385,22 +393,6 @@ flake.nix
           program = "${self.packages.${system}.default}/bin/${thisProjectAsNixPkg.pname}";
         };
         apps.${thisProjectAsNixPkg.pname} = self.apps.${system}.default;
-
-        packages.docker-image = pkgs.dockerTools.buildImage {
-          name = "kyokley/build-demo-nix2";
-          tag = "latest";
-          copyToRoot = pkgs.buildEnv {
-            name = "image-root";
-            paths = [ self.packages.${system}.default ];
-            pathsToLink = ["/bin"];
-          };
-          config = {
-            Entrypoint = ["/bin/${thisProjectAsNixPkg.pname}"];
-            Env = [
-              "FORTUNE_EXEC=/bin/fortune"
-            ];
-          };
-        };
       }
     );
 }

@@ -7,7 +7,7 @@ import httpx
 import uvicorn
 from fastapi import FastAPI, Response
 
-FORTUNE_EXEC = os.environ.get("FORTUNE_EXEC") or "/app/bin/fortune"
+FORTUNE_EXEC = os.environ.get("FORTUNE_EXEC") or "/bin/fortune"
 app = FastAPI()
 
 
