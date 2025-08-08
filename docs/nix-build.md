@@ -75,6 +75,41 @@ Notes:
 
 Fortune Cat is a python3.13 fastapi app that calls Cat-aaS and passes a message from the fortune CLI app
 
+-v-
+
+#### :cat: Enter Fortune Cat :cat:
+pyproject.toml
+
+```
+[project]
+name = "build-demo"
+version = "0.1.0"
+description = "Fortune Cat!"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.116.1",
+    "httpx>=0.28.1",
+    "uvicorn>=0.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "bpython>=0.25",
+]
+```
+
+-v-
+
+#### :cat: Enter Fortune Cat :cat:
+```
+fortune_cat
+├── main.py
+├── pyproject.toml
+├── README.md
+└── uv.lock
+```
+
 ---
 
 Let's build a container
