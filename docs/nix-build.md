@@ -92,11 +92,6 @@ dependencies = [
     "httpx>=0.28.1",
     "uvicorn>=0.35.0",
 ]
-
-[dependency-groups]
-dev = [
-    "bpython>=0.25",
-]
 ```
 
 -v-
@@ -338,7 +333,6 @@ Notes:
 
 -v-
 
-#### uv2nix
 :snowflake: flake.nix :snowflake:
 ```nix [52|82-90]
 {
@@ -403,7 +397,7 @@ Notes:
 
         devPythonEnv = pythonSet.mkVirtualEnv
           (thisProjectAsNixPkg.pname + "-env")
-          workspace.deps.dev; # Uses deps from pyproject.toml [project.dependencies]
+          workspace.deps.all; # Uses deps from pyproject.toml [project.dependencies]
 
       in
       {
@@ -452,14 +446,79 @@ Notes:
 
 This is mostly boilerplate
 
+Be sure to run :
+```
+nix build .
+```
+after nix run
+
 ---
 
 ### Great, now what???
+How does this lead to reproducible builds?
+
+---
+
+Query the Nix store
+```bash
+nix build .
+nix-store -qR result
+```
+
+```text
+/nix/store/19cmj1h0p5gb3nbadrgz301m4b3yrdgk-pydantic-2.11.7
+/nix/store/n9mggs3wskqv3vqd4xn8hbq2yzcf2z1d-xgcc-14.3.0-libgcc
+/nix/store/562jc9ym7vd1zsw6sbq7i6j1vg8k1x32-libunistring-1.3
+/nix/store/v9rj8vr6q5j3kr9nmdwhc3mi7cg55xcs-libidn2-2.3.8
+/nix/store/lmn7lwydprqibdkghw7wgcn21yhllz13-glibc-2.40-66
+/nix/store/97jdzvwjgwy2g4xcijimadl0vpj6laqh-zlib-1.3.1
+/nix/store/yd47pmkv6iv58gs5v5jgyblvkw87pqx3-sqlite-3.50.2
+/nix/store/29f7lcljr566rb1cqf14a3rcjpajbg7i-util-linux-minimal-2.41-lib
+/nix/store/4kark163478mlnx42k2gakrji1z43z9m-ncurses-6.5
+/nix/store/57ybxmmsdz67prqnyqi4badmg59303i0-typing-inspection-0.4.1
+/nix/store/5hc7drjs7yydabg1amrsma0g9dqi4358-typing-extensions-4.14.1
+/nix/store/7ap0mfwsv7gnzvfjpymrj55pj2yc13sq-click-8.2.1
+/nix/store/d30jzadpdsxdk7jwp7h3znrfr5gpf816-bzip2-1.0.8
+/nix/store/cg41x0ldk43qlsndsbladyl0k4dxanvh-gcc-14.3.0-libgcc
+/nix/store/fkw48vh7ivlvlmhp4j30hy2gvg00jgin-gcc-14.3.0-lib
+/nix/store/gkwbw9nzbkbz298njbn3577zmrnglbbi-bash-5.3p0
+/nix/store/l3pzyjc5zmzp4bcbg40s6f5zjq87c77i-gdbm-1.25-lib
+/nix/store/lrzs7l92j20n81rv4hs5js5qigg686s3-xz-5.8.1
+/nix/store/lsbw8y9k2sg13c7z1nrqgzmg42ln1ji2-mpdecimal-4.0.1
+/nix/store/lyl9yxxz8a3mlaxvm0jln6mglpbf2fha-openssl-3.5.1
+/nix/store/ms10flhvgnd1nsfwnb355aw414ijlq8j-tzdata-2025b
+/nix/store/p23www756j3bjy9l1bf5bkwmr2vvd6h1-expat-2.7.1
+/nix/store/qfz8slc34jinyfkvmskaplijj8a79w25-libffi-3.5.1
+/nix/store/sdyl0b9k0ijgdfwba9cgp76m81nhm387-libxcrypt-4.4.38
+/nix/store/sldk7q9f60pm7s9sr2ir9qmk5242ig6j-mailcap-2.1.54
+/nix/store/wqg50ip92b4626ryk097yszg6lyi32bf-readline-8.3p1
+/nix/store/9yh9ak97gn659bk4d3n411fx6c0ng7s2-python3-3.13.5
+/nix/store/gqmidk0dajvm3hk123ynwd0zkl0vyxsr-httpx-0.28.1
+/nix/store/h4m3a0knam7vggq878b4v28z716lmrv6-fastapi-0.116.1
+/nix/store/kllanvd6azh2szl1mm13rc0xq570jdag-h11-0.16.0
+/nix/store/mgl5a0lsbr23qvnz3cic112nk69z2qd2-idna-3.10
+/nix/store/mk757arf4yd68kz1y6wzl5487slp89im-pydantic-core-2.33.2
+/nix/store/psaj602f2bw22dv4kgl4b1b8wylrpxdp-certifi-2025.8.3
+/nix/store/qwdivzbv1l08sxnak3hwykla44k11n7j-httpcore-1.0.9
+/nix/store/rlmf7gy0i82jr0irgwjhdc39v1v9nlzi-anyio-4.9.0
+/nix/store/v31f8n80w8jcckc5jpld9h0y54w3lkiv-uvicorn-0.35.0
+/nix/store/vy1rpkxh98h9hrk1gsgwchclhm6bz29v-build-demo-0.1.0
+/nix/store/w1cz89vn755frpv09b526y09jnpc27cw-starlette-0.47.2
+/nix/store/wrlhpf30w8d4bhi7zdva58s5c4ri9inp-annotated-types-0.7.0
+/nix/store/yg48ysghiif5gb47dml4rvjdxrpq7ch4-sniffio-1.3.1
+/nix/store/lmldw4ch9mbpsjlypsjxy4sdq7amnjcy-build-demo-env
+/nix/store/ma0amj322nxwgv18dc2l13vcjlsjfdaw-recode-3.7.14
+/nix/store/v3ny8rcwhisjxfhkif4aykc0pcc7b2wx-fortune-mod-3.24.0
+/nix/store/mgvcnprxflx5mj7yl5wk9af44w9srb34-build-demo-0.1.0
+```
+
+Notes:
+So if Nix can show us this then...
 
 ---
 
 :whale: Dockerfile-nix :whale:
-```dockerfile
+```dockerfile [1-17|19-29]
 # Nix builder
 FROM nixos/nix:latest AS builder
 
@@ -588,7 +647,7 @@ docker load < result
 
         devPythonEnv = pythonSet.mkVirtualEnv
           (thisProjectAsNixPkg.pname + "-env")
-          workspace.deps.dev; # Uses deps from pyproject.toml [project.dependencies]
+          workspace.deps.all; # Uses deps from pyproject.toml [project.dependencies]
 
       in
       {
@@ -649,3 +708,7 @@ To build:
 nix build '.#docker-image'
 docker load < result
 ```
+
+---
+
+### Docker :heart: Nix
