@@ -649,7 +649,7 @@ How does this lead to reproducible builds?
 
 ---
 
-Query the Nix store
+:convenience_store: Query the Nix store :convenience_store:
 ```bash
 nix build .
 nix-store -qR result
@@ -707,7 +707,7 @@ So if Nix can show us this then...
 
 ---
 
-#### Nix Dockerfile: Attempt #1
+#### Nix Docker: Attempt #1
 :whale: Dockerfile-nix :whale:
 ```dockerfile
 # Nix builder
@@ -738,7 +738,7 @@ docker run --rm -it \
 
 ---
 
-#### Nix Dockerfile: Attempt #2
+#### Nix Docker: Attempt #2
 :whale: Dockerfile-nix :whale:
 ```dockerfile [1-17|19-29]
 # Nix builder
@@ -786,41 +786,7 @@ docker run --rm -it \
 
 #### Nix Docker: Attempt #3
 :snowflake: Nix dockerTools.buildImage :snowflake:
-```nix
-# Add as output in flake.nix
-packages.docker-image = pkgs.dockerTools.buildImage {
-    name = "kyokley/build-demo-nix3";
-    tag = "latest";
-    copyToRoot = pkgs.buildEnv {
-        name = "image-root";
-        paths = [ self.packages.${system}.default ];
-        pathsToLink = ["/bin"];
-    };
-    config = {
-        Entrypoint = ["/bin/${thisProjectAsNixPkg.pname}"];
-        Env = [
-            "FORTUNE_EXEC=/bin/fortune"
-        ];
-    };
-};
-```
-
--v-
-
-To run:
-```bash
-nix build '.#docker-image'
-docker load < result
-docker run --rm -it \
-           -p 127.0.0.1:8001:8001 \
-           kyokley/build-demo-nix3
-```
-
--v-
-
-#### Nix Docker: Attempt #3
-:snowflake: Nix dockerTools.buildImage :snowflake:
-```nix [100-114]
+```nix [1-114|100-114]
 {
   description = "App to display cats telling fortunes";
 
@@ -939,6 +905,9 @@ docker run --rm -it \
     );
 }
 ```
+
+-v-
+
 To run:
 ```bash
 nix build '.#docker-image'
