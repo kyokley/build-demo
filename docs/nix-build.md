@@ -4,7 +4,8 @@ slides:
     separator_vertical: ^\s*-v-\s*$
 ---
 
-# :building_construction: Deterministic Builds :ship:
+# :building_construction: Deterministic
+# Deployments :ship:
 
 ---
 
@@ -159,7 +160,7 @@ What parts of this risk reproducibility?
 -v-
 
 :thinking: Potential Issues :thinking:
-```dockerfile [1|25-27]
+```dockerfile [1-32|1|25-27]
 FROM python:3.13-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -334,7 +335,7 @@ Notes:
 -v-
 
 :snowflake: flake.nix :snowflake:
-```nix [52|82-90]
+```nix [1-117|52|82-90]
 {
   description = "App to display cats telling fortunes";
 
