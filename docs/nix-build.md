@@ -680,6 +680,38 @@ So if Nix can show us this then...
 
 ---
 
+#### Nix Dockerfile: Attempt #1
+:whale: Dockerfile-nix :whale:
+```dockerfile
+# Nix builder
+FROM nixos/nix:latest AS builder
+
+# Copy our source and setup our working dir.
+COPY . /tmp/build
+WORKDIR /tmp/build
+
+# Build our Nix environment
+RUN nix \
+    --extra-experimental-features "nix-command flakes" \
+    --option filter-syscalls false \
+    build
+
+ENTRYPOINT ["result/bin/build-demo"]
+```
+
+-v-
+
+To run:
+```bash
+docker build -t kyokley/build-demo-nix -f Dockerfile-nix .
+docker run --rm -it \
+           -p 127.0.0.1:8001:8001 \
+           kyokley/build-demo-nix
+```
+
+---
+
+#### Nix Dockerfile: Attempt #2
 :whale: Dockerfile-nix :whale:
 ```dockerfile [1-17|19-29]
 # Nix builder
@@ -704,26 +736,33 @@ RUN cp -R $(nix-store -qR result/) /tmp/nix-store-closure
 # but they're fully self-contained so we don't need Nix anymore.
 FROM scratch
 
-WORKDIR /app
+WORKDIR /result
 
 # Copy /nix/store
 COPY --from=builder /tmp/nix-store-closure /nix/store
-COPY --from=builder /tmp/build/result /app
+COPY --from=builder /tmp/build/result /result
 
-ENTRYPOINT ["/app/bin/build-demo"]
+ENTRYPOINT ["/result/bin/build-demo"]
 ```
-To build:
+
+-v-
+
+To run:
 ```bash
-docker build -t kyokley/build-demo-nix -f Dockerfile-nix .
+docker build -t kyokley/build-demo-nix2 -f Dockerfile-nix2 .
+docker run --rm -it \
+           -p 127.0.0.1:8001:8001 \
+           kyokley/build-demo-nix2
 ```
 
 ---
 
+#### Nix Docker: Attempt #3
 :snowflake: Nix dockerTools.buildImage :snowflake:
 ```nix
 # Add as output in flake.nix
 packages.docker-image = pkgs.dockerTools.buildImage {
-    name = "kyokley/build-demo-nix2";
+    name = "kyokley/build-demo-nix3";
     tag = "latest";
     copyToRoot = pkgs.buildEnv {
         name = "image-root";
@@ -738,14 +777,21 @@ packages.docker-image = pkgs.dockerTools.buildImage {
     };
 };
 ```
-To build:
+
+-v-
+
+To run:
 ```bash
 nix build '.#docker-image'
 docker load < result
+docker run --rm -it \
+           -p 127.0.0.1:8001:8001 \
+           kyokley/build-demo-nix3
 ```
 
 -v-
 
+#### Nix Docker: Attempt #3
 :snowflake: Nix dockerTools.buildImage :snowflake:
 ```nix [100-114]
 {
@@ -848,7 +894,7 @@ docker load < result
         apps.${thisProjectAsNixPkg.pname} = self.apps.${system}.default;
 
         packages.docker-image = pkgs.dockerTools.buildImage {
-          name = "kyokley/build-demo-nix2";
+          name = "kyokley/build-demo-nix3";
           tag = "latest";
           copyToRoot = pkgs.buildEnv {
             name = "image-root";
@@ -866,10 +912,13 @@ docker load < result
     );
 }
 ```
-To build:
+To run:
 ```bash
 nix build '.#docker-image'
 docker load < result
+docker run --rm -it \
+           -p 127.0.0.1:8001:8001 \
+           kyokley/build-demo-nix3
 ```
 
 ---

@@ -98,7 +98,7 @@
         apps.${thisProjectAsNixPkg.pname} = self.apps.${system}.default;
 
         packages.docker-image = pkgs.dockerTools.buildImage {
-          name = "kyokley/build-demo-nix2";
+          name = "kyokley/build-demo-nix3";
           tag = "latest";
           copyToRoot = pkgs.buildEnv {
             name = "image-root";
