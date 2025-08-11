@@ -9,8 +9,16 @@ slides:
 
 ---
 
+I :heart: Docker
+
+Notes:
+
+This led me to a question
+
+---
+
 ## :whale: Docker :whale:
-Is Docker a good platform for creating reproducible builds? <!-- .element: class="fragment" -->
+Is Docker a good platform for creating reproducible builds?
 
 Notes:
 
@@ -149,15 +157,25 @@ WORKDIR ${UV_PROJECT_DIR}
 
 CMD ["uv", "run", "python", "main.py"]
 ```
-To build:
-```bash
-docker build -t kyokley/build-demo -f Dockerfile .
-```
+
 Notes:
 
 What parts of this risk reproducibility?
 
 -v-
+
+To run:
+```bash
+docker build -t kyokley/build-demo -f Dockerfile .
+docker run --rm -it \
+           -p 127.0.0.1:8001:8001 \
+           kyokley/build-demo
+```
+Notes:
+
+What parts of this risk reproducibility?
+
+---
 
 :thinking: Potential Issues :thinking:
 ```dockerfile [1-32|1|25-27]
@@ -194,10 +212,6 @@ COPY . ${UV_PROJECT_DIR}
 
 WORKDIR ${UV_PROJECT_DIR}
 ```
-To build:
-```bash
-docker build -t kyokley/build-demo -f Dockerfile .
-```
 
 Notes:
 * The image defined in the first line isn't pinned
@@ -205,6 +219,16 @@ Notes:
 * Commands like "apt update", "apk update", etc. could change package versions across builds
 
 * "apt upgrade" is especially insidious because it means old versions of OS libraries could be leftover in your images
+
+-v-
+
+To run:
+```bash
+docker build -t kyokley/build-demo -f Dockerfile .
+docker run --rm -it \
+           -p 127.0.0.1:8001:8001 \
+           kyokley/build-demo
+```
 
 ---
 
@@ -218,7 +242,7 @@ Notes:
 ---
 #### uv2nix
 :snowflake: flake.nix :snowflake:
-```nix
+```nix []
 {
   description = "App to display cats telling fortunes";
 
@@ -438,10 +462,6 @@ Notes:
     );
 }
 ```
-To run:
-```bash
-nix run .
-```
 
 Notes:
 
@@ -452,6 +472,13 @@ Be sure to run :
 nix build .
 ```
 after nix run
+
+-v-
+
+To run:
+```bash
+nix run .
+```
 
 ---
 
