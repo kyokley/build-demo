@@ -26,7 +26,7 @@ Show of hands, who thinks Docker is a good platform for creating reproducible bu
 
 ---
 
-According to [Docker](https://www.docker.com/why-docker/)
+:scroll: According to [Docker](https://www.docker.com/why-docker/) :scroll:
 > Docker introduced what would become the industry standard for containers. Containers are a standardized unit of software that allows developers to isolate their app from its environment, solving the “it works on my machine” headache.
 
 ---
@@ -354,7 +354,7 @@ Notes:
 -v-
 
 # BUT WHY!?
-<img src="https://the6track.com/wp-content/uploads/2017/10/Really-Confused-Black-guy-memes.jpg" class="r-stretch" />
+<img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExazUxcTRhZDYwMm53Nmh3djZ1b3huZ2ozZ3p6bmZ2MnE3bWoyZ2h6OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hEq5gKy2bsGWY/giphy.gif" class="r-stretch" />
 
 -v-
 
@@ -649,6 +649,37 @@ How does this lead to reproducible builds?
 
 ---
 
+#### Nix Docker: Attempt #1
+:whale: Dockerfile-nix :whale:
+```dockerfile
+# Nix builder
+FROM nixos/nix:latest AS builder
+
+# Copy our source and setup our working dir.
+COPY . /tmp/build
+WORKDIR /tmp/build
+
+# Build our Nix environment
+RUN nix \
+    --extra-experimental-features "nix-command flakes" \
+    --option filter-syscalls false \
+    build
+
+ENTRYPOINT ["result/bin/build-demo"]
+```
+
+-v-
+
+To run:
+```bash
+docker build -t kyokley/build-demo-nix -f Dockerfile-nix .
+docker run --rm -it \
+           -p 127.0.0.1:8001:8001 \
+           kyokley/build-demo-nix
+```
+
+---
+
 :convenience_store: Query the Nix store :convenience_store:
 ```bash
 nix build .
@@ -704,37 +735,6 @@ nix-store -qR result
 
 Notes:
 So if Nix can show us this then...
-
----
-
-#### Nix Docker: Attempt #1
-:whale: Dockerfile-nix :whale:
-```dockerfile
-# Nix builder
-FROM nixos/nix:latest AS builder
-
-# Copy our source and setup our working dir.
-COPY . /tmp/build
-WORKDIR /tmp/build
-
-# Build our Nix environment
-RUN nix \
-    --extra-experimental-features "nix-command flakes" \
-    --option filter-syscalls false \
-    build
-
-ENTRYPOINT ["result/bin/build-demo"]
-```
-
--v-
-
-To run:
-```bash
-docker build -t kyokley/build-demo-nix -f Dockerfile-nix .
-docker run --rm -it \
-           -p 127.0.0.1:8001:8001 \
-           kyokley/build-demo-nix
-```
 
 ---
 
