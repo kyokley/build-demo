@@ -9,7 +9,7 @@ slides:
 
 ---
 
-I :heart: Docker
+## I :heart: Docker
 
 Notes:
 
@@ -919,4 +919,9 @@ docker run --rm -it \
 
 ---
 
-### Docker :heart: Nix
+## Docker :heart: Nix
+
+#### Flake Template
+[kyokley/flake.nix](https://gist.github.com/kyokley/03e6a4e21f29171e0df2c3d51bfc47ce)
+#### Github
+[kyokley/build-demo](https://github.com/kyokley/build-demo)
